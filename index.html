@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta de Publicações · DJEN</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #fff; --ink: #1d1f24; --muted: #6b6f78; --line: #e4e0d6;
+    --accent: #1f3a5f; --accent2: #2c5282; --red: #b42318; --redbg: #fdecea;
+    --amber: #a15c07; --amberbg: #fff4e0; --green: #1e6b3a; --greenbg: #e8f5ec;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  header { background: var(--accent); color: #fff; padding: 18px 20px; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .3px; }
+  header p { margin: 2px 0 0; opacity: .8; font-size: 13px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  h2 { font-size: 15px; margin: 0 0 12px; color: var(--accent); text-transform: uppercase; letter-spacing: .5px; }
+  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+  input, select, textarea { font: inherit; padding: 7px 9px; border: 1px solid #cfcabd; border-radius: 6px; background: #fff; color: var(--ink); }
+  textarea { width: 100%; resize: vertical; }
+  button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  button.sec { background: #fff; color: var(--accent); }
+  button.mini { padding: 3px 8px; font-size: 13px; }
+  button:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .chip { background: #eef2f7; border: 1px solid #d5dde8; border-radius: 99px; padding: 3px 6px 3px 10px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+  .chip button { border: 0; background: none; color: var(--muted); padding: 0 4px; font-size: 15px; }
+  #status { font-size: 14px; color: var(--muted); margin-top: 10px; min-height: 20px; }
+  #avisos { font-size: 13px; color: var(--amber); }
+  .bar { height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; margin-top: 8px; display: none; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--accent2); transition: width .2s; }
+  .resumo { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .resumo button { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .resumo button.on { border-color: var(--accent); background: #eef2f7; }
+  .resumo b { margin-left: 4px; }
+  .pub { border: 1px solid var(--line); border-radius: 10px; background: #fff; margin-bottom: 10px; overflow: hidden; }
+  .pub.cancelada { opacity: .65; }
+  .pub-h { padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+  .proc { font-weight: 600; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; }
+  .meta { font-size: 13px; color: var(--muted); }
+  .tag { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 99px; background: #eef2f7; color: var(--accent); margin-right: 4px; }
+  .tag.red { background: var(--redbg); color: var(--red); }
+  .prazo { text-align: right; min-width: 170px; }
+  .fatal { font-weight: 700; font-size: 15px; }
+  .st { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+  .st.venc { background: var(--redbg); color: var(--red); }
+  .st.hoje { background: var(--red); color: #fff; }
+  .st.prox { background: var(--amberbg); color: var(--amber); }
+  .st.ok { background: var(--greenbg); color: var(--green); }
+  .pub-c { border-top: 1px solid var(--line); padding: 10px 14px; background: #fcfbf8; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; }
+  .pub-c input[type=number] { width: 64px; padding: 4px 6px; }
+  .pub-c select { padding: 4px 6px; }
+  .texto { white-space: pre-wrap; font-size: 14px; padding: 12px 14px; border-top: 1px solid var(--line); max-height: 420px; overflow: auto; display: none; }
+  .pub.aberta .texto { display: block; }
+  a { color: var(--accent2); }
+  .vazio { text-align: center; color: var(--muted); padding: 30px; }
+  footer { text-align: center; font-size: 12px; color: var(--muted); padding: 20px; }
+  .concl .pub-h { text-decoration: line-through; text-decoration-color: #aaa; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Consulta de Publicações · DJEN</h1>
+  <p>Busca no Diário de Justiça Eletrônico Nacional com cálculo do prazo fatal</p>
+</header>
+<main>
+  <div class="grid2">
+    <section class="card">
+      <h2>OABs monitoradas</h2>
+      <div class="row">
+        <div><label for="oabNum">Número</label><input id="oabNum" placeholder="44300" size="10" inputmode="numeric"></div>
+        <div><label for="oabUf">UF</label><input id="oabUf" placeholder="BA" size="3" maxlength="2"></div>
+        <button class="sec" id="addOab">Adicionar</button>
+      </div>
+      <div class="chips" id="listaOab"></div>
+      <label for="procs" style="margin-top:10px">Processos avulsos (opcional, um por linha)</label>
+      <textarea id="procs" rows="2" placeholder="0000000-00.0000.0.00.0000"></textarea>
+    </section>
+    <section class="card">
+      <h2>Busca</h2>
+      <div class="row">
+        <div><label for="ini">Disponibilizadas de</label><input type="date" id="ini"></div>
+        <div><label for="fim">até</label><input type="date" id="fim"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label style="display:flex;gap:6px;align-items:center;margin:0;color:var(--ink)"><input type="checkbox" id="variantes" checked> Testar variantes da OAB (-A, -O, -N, -B, -S, -E)</label>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button id="buscar">Buscar publicações</button>
+        <button class="sec" id="parar" disabled>Parar</button>
+      </div>
+      <div class="bar" id="bar"><i></i></div>
+      <div id="status"></div>
+      <div id="avisos"></div>
+    </section>
+  </div>
+
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:600;color:var(--accent)">Feriados locais e suspensões (opcional)</summary>
+    <p class="meta">Uma data por linha no formato AAAA-MM-DD. Para valer só em um tribunal, escreva a sigla antes: <code>TJBA 2026-07-02</code>. Os feriados nacionais, o Carnaval, a Semana Santa, Corpus Christi e a suspensão de 20/12 a 20/01 já entram no cálculo.</p>
+    <textarea id="feriados" rows="4" placeholder="TJBA 2026-07-02&#10;2026-06-24"></textarea>
+  </details>
+
+  <section class="card" id="resultados" style="display:none">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <h2 style="margin:0">Publicações</h2>
+      <div class="row">
+        <input id="filtro" placeholder="Filtrar por texto, processo, parte…" size="30">
+        <select id="ordem"><option value="fatal">Ordenar por prazo</option><option value="data">Mais recentes</option></select>
+        <button class="sec" id="csv">Baixar planilha (CSV)</button>
+      </div>
+    </div>
+    <div class="resumo" id="resumo"></div>
+    <div id="lista"></div>
+  </section>
+
+  <p class="meta" style="text-align:center">O prazo padrão é de 15 dias úteis. Ajuste em cada publicação conforme o ato. Tudo que você cadastra fica salvo só neste navegador.</p>
+</main>
+<footer>Ferramenta de auxílio. A conferência oficial do prazo continua sendo do advogado.</footer>
+
+<script>
+"use strict";
+const API = 'https://comunicaapi.pje.jus.br/api/v1/comunicacao';
+const SUFIXOS = ['', '-O', '-A', '-N', '-B', '-S', '-E'];
+const $ = (s) => document.querySelector(s);
+const soDigitos = (s) => String(s || '').replace(/\D/g, '');
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// ---------- armazenamento local ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('djen.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('djen.' + k, JSON.stringify(v)); } catch {} },
+};
+
+// ---------- calendário forense (mesma regra do sistema) ----------
+const pad = (n) => String(n).padStart(2, '0');
+const iso = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
+const addDias = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const dow = (s) => new Date(s + 'T12:00:00Z').getUTCDay();
+const hojeISO = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bahia' }).format(new Date());
+function pascoa(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4,
+    f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30,
+    i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+    mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+  return iso(y, mes, dia);
+}
+const md = (s) => s.slice(5);
+const emSuspensao = (s) => md(s) >= '12-20' || md(s) <= '01-20';
+const emRecesso = (s) => md(s) >= '12-20' || md(s) <= '01-06';
+
+function criarCalendario(extras = {}) {
+  const cache = new Map();
+  function feriados(y, t) {
+    const key = y + '|' + t;
+    if (cache.has(key)) return cache.get(key);
+    const p = pascoa(y);
+    const s = new Set([
+      iso(y, 1, 1), iso(y, 4, 21), iso(y, 5, 1), iso(y, 9, 7), iso(y, 10, 12),
+      iso(y, 11, 2), iso(y, 11, 15), iso(y, 11, 20), iso(y, 12, 25),
+      addDias(p, -48), addDias(p, -47), addDias(p, -2), addDias(p, 60),
+    ]);
+    if (/^(TRF|STJ|STF|CJF|TNU)/.test(t)) [addDias(p, -4), addDias(p, -3), iso(y, 8, 11), iso(y, 11, 1), iso(y, 12, 8)].forEach((d) => s.add(d));
+    [...(extras['*'] || []), ...(extras[t] || [])].forEach((d) => s.add(d));
+    cache.set(key, s);
+    return s;
+  }
+  const fds = (s) => dow(s) === 0 || dow(s) === 6;
+  const feriado = (s, t) => feriados(+s.slice(0, 4), t).has(s);
+  const expediente = (s, t) => !fds(s) && !feriado(s, t) && !emRecesso(s);
+  const utilPrazo = (s, t) => expediente(s, t) && !emSuspensao(s);
+  const proximo = (s, t, fn) => { let d = addDias(s, 1); while (!fn(d, t)) d = addDias(d, 1); return d; };
+  const ajusta = (s, t) => (utilPrazo(s, t) ? s : proximo(s, t, utilPrazo));
+  function calcular(disp, t, dias, contagem = 'uteis') {
+    const publicacao = proximo(disp, t, expediente);
+    const inicio = proximo(publicacao, t, utilPrazo);
+    if (!dias || dias < 1) return { publicacao, inicio, fatal: '' };
+    let fatal;
+    if (contagem === 'corridos') fatal = ajusta(addDias(inicio, dias - 1), t);
+    else { fatal = inicio; let n = 1; while (n < dias) { fatal = addDias(fatal, 1); if (utilPrazo(fatal, t)) n++; } }
+    return { publicacao, inicio, fatal };
+  }
+  function uteisAte(alvo, t, hoje) {
+    if (!alvo) return null;
+    if (alvo === hoje) return 0;
+    const sinal = alvo > hoje ? 1 : -1; let n = 0, d = hoje;
+    while (d !== alvo) { d = addDias(d, sinal); if (utilPrazo(d, t)) n += sinal; }
+    return n;
+  }
+  return { calcular, uteisAte };
+}
+function lerFeriados() {
+  const ex = {};
+  for (const linha of $('#feriados').value.split('\n')) {
+    const m = linha.trim().match(/^(?:([A-Za-z0-9]+)\s+)?(\d{4}-\d{2}-\d{2})$/);
+    if (!m) continue;
+    const k = m[1] ? m[1].toUpperCase() : '*';
+    (ex[k] ||= []).push(m[2]);
+  }
+  return ex;
+}
+let cal = criarCalendario();
+
+// ---------- estado ----------
+let oabs = store.get('oabs', []);
+let ajustes = store.get('ajustes', {}); // id -> {dias, cont, dobro, concl}
+let pubs = store.get('ultimo', []);
+let filtroSt = 'todas';
+let parar = false;
+
+function renderOabs() {
+  $('#listaOab').innerHTML = oabs.length
+    ? oabs.map((o, i) => `<span class="chip">OAB ${esc(o.numero)}/${esc(o.uf)}<button title="Remover" data-i="${i}">×</button></span>`).join('')
+    : '<span class="meta">Nenhuma OAB cadastrada.</span>';
+}
+$('#listaOab').addEventListener('click', (e) => {
+  const i = e.target.dataset.i; if (i == null) return;
+  oabs.splice(+i, 1); store.set('oabs', oabs); renderOabs();
+});
+$('#addOab').addEventListener('click', () => {
+  const numero = soDigitos($('#oabNum').value), uf = $('#oabUf').value.trim().toUpperCase();
+  if (!numero || !/^[A-Z]{2}$/.test(uf)) { alertar('Informe o número e a UF (2 letras).'); return; }
+  if (!oabs.some((o) => o.numero === numero && o.uf === uf)) oabs.push({ numero, uf });
+  store.set('oabs', oabs); renderOabs(); $('#oabNum').value = ''; $('#oabNum').focus();
+});
+$('#oabUf').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#addOab').click(); });
+function alertar(msg) { $('#status').textContent = msg; }
+
+$('#procs').value = store.get('procs', '');
+$('#procs').addEventListener('change', () => store.set('procs', $('#procs').value));
+$('#feriados').value = store.get('feriados', '');
+$('#feriados').addEventListener('change', () => { store.set('feriados', $('#feriados').value); cal = criarCalendario(lerFeriados()); render(); });
+cal = criarCalendario(lerFeriados());
+
+const hoje = hojeISO();
+$('#fim').value = hoje;
+$('#ini').value = addDias(hoje, -7);
+
+// ---------- busca ----------
+async function get(params) {
+  const url = new URL(API);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+  for (let t = 0; t < 3; t++) {
+    try {
+      const r = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (r.ok) return await r.json();
+      if (r.status === 403) throw new Error('O DJEN recusou a consulta (403). Ele só aceita acessos do Brasil; se estiver usando VPN, desligue.');
+      if (r.status === 429 || r.status >= 500) { await sleep(1500 * (t + 1)); continue; }
+      throw new Error('O DJEN respondeu ' + r.status);
+    } catch (e) {
+      if (e.message.startsWith('O DJEN')) throw e;
+      await sleep(1500);
+    }
+  }
+  return null;
+}
+
+async function consultar(params, rotulo, ini, fim, avisos, tick) {
+  const itens = []; let count = null;
+  for (let pagina = 1; pagina <= 100 && !parar; pagina++) {
+    const d = await get({ ...params, dataDisponibilizacaoInicio: ini, dataDisponibilizacaoFim: fim, itensPorPagina: 100, pagina });
+    tick();
+    if (!d) { avisos.push(`${rotulo}: falha na página ${pagina}; resultado pode estar incompleto.`); break; }
+    if (count === null) count = Number(d.count) || 0;
+    const page = Array.isArray(d.items) ? d.items : [];
+    itens.push(...page);
+    if (!page.length || itens.length >= count) break;
+    await sleep(400);
+  }
+  return itens;
+}
+
+$('#buscar').addEventListener('click', async () => {
+  const ini = $('#ini').value, fim = $('#fim').value;
+  const procs = $('#procs').value.split('\n').map(soDigitos).filter(Boolean);
+  if (!oabs.length && !procs.length) { alertar('Cadastre ao menos uma OAB ou um processo.'); return; }
+  if (!ini || !fim || ini > fim) { alertar('Confira o período.'); return; }
+  const suf = $('#variantes').checked ? SUFIXOS : [''];
+  const alvos = [];
+  for (const o of oabs) for (const s of suf) alvos.push({ p: { numeroOab: o.numero + s, ufOab: o.uf }, rot: `OAB ${o.numero}${s}/${o.uf}`, alvo: `OAB ${o.numero}/${o.uf}` });
+  for (const n of procs) {
+    if (n.length !== 20) continue;
+    alvos.push({ p: { numeroProcesso: n }, rot: 'Processo ' + n, alvo: 'Processo ' + n });
+  }
+  parar = false; $('#buscar').disabled = true; $('#parar').disabled = false;
+  $('#bar').style.display = 'block'; $('#avisos').textContent = '';
+  const avisos = [], porId = new Map();
+  let feitas = 0; const total = alvos.length;
+  const bar = $('#bar i');
+  try {
+    for (const a of alvos) {
+      if (parar) break;
+      alertar(`Consultando ${a.rot}… (${feitas + 1} de ${total})`);
+      const lista = await consultar(a.p, a.rot, ini, fim, avisos, () => {});
+      for (const it of lista) {
+        if (!it || it.id == null) continue;
+        const cur = porId.get(it.id);
+        if (cur) { if (!cur._alvos.includes(a.alvo)) cur._alvos.push(a.alvo); }
+        else porId.set(it.id, { ...it, _alvos: [a.alvo] });
+      }
+      feitas++; bar.style.width = (100 * feitas / total) + '%';
+      await sleep(300);
+    }
+    pubs = [...porId.values()].map(normalizar);
+    try { store.set('ultimo', pubs); } catch {}
+    alertar(`${parar ? 'Busca interrompida. ' : ''}${pubs.length} publicação(ões) encontrada(s) entre ${br(ini)} e ${br(fim)}.`);
+  } catch (e) {
+    alertar(e.message);
+  } finally {
+    $('#buscar').disabled = false; $('#parar').disabled = true;
+    setTimeout(() => { $('#bar').style.display = 'none'; bar.style.width = 0; }, 600);
+    $('#avisos').innerHTML = avisos.map(esc).join('<br>');
+    render();
+  }
+});
+$('#parar').addEventListener('click', () => { parar = true; });
+
+function textoPlano(html) {
+  return String(html || '')
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<br\s*\/?>|<\/p>|<\/div>|<\/tr>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
+    .replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim();
+}
+function normalizar(it) {
+  return {
+    id: it.id, hash: it.hash || '',
+    cancelada: !!(it.motivo_cancelamento && String(it.motivo_cancelamento).trim()),
+    motivo: it.motivo_cancelamento || '',
+    processo: it.numeroprocessocommascara || soDigitos(it.numero_processo),
+    tribunal: it.siglaTribunal || '',
+    tipo: it.tipoComunicacao || '', doc: it.tipoDocumento || '',
+    orgao: it.nomeOrgao || '', classe: it.nomeClasse || '',
+    disp: String(it.data_disponibilizacao || it.datadisponibilizacao || '').slice(0, 10),
+    link: it.link || '',
+    partes: (it.destinatarios || []).map((d) => `${d.nome}${d.polo ? ` (${d.polo})` : ''}`).join('; '),
+    alvos: (it._alvos || []).join('; '),
+    texto: textoPlano(it.texto).slice(0, 60000),
+  };
+}
+const br = (s) => (s ? s.split('-').reverse().join('/') : '');
+const certidao = (h) => (h ? `${API}/${h}/certidao` : '');
+
+// ---------- prazos e listagem ----------
+function prazoDe(p) {
+  const a = ajustes[p.id] || {};
+  let dias = a.dias ?? 15; const cont = a.cont || 'uteis';
+  if (a.dobro) dias *= 2;
+  const disp = /^\d{4}-\d{2}-\d{2}$/.test(p.disp) ? p.disp : null;
+  if (!disp) return { dias, cont, fatal: '', resta: null };
+  const c = cal.calcular(disp, p.tribunal, dias, cont);
+  return { ...c, dias, cont, resta: cal.uteisAte(c.fatal, p.tribunal, hojeISO()) };
+}
+function situacao(p, pr) {
+  const a = ajustes[p.id] || {};
+  if (p.cancelada) return 'cancelada';
+  if (a.concl) return 'concluida';
+  if (pr.resta == null) return 'sem';
+  if (pr.resta < 0) return 'vencida';
+  if (pr.resta === 0) return 'hoje';
+  if (pr.resta <= 5) return 'prox';
+  return 'ok';
+}
+function selo(st, pr) {
+  if (st === 'vencida') return `<span class="st venc">Vencido há ${-pr.resta} dia(s) útil(eis)</span>`;
+  if (st === 'hoje') return `<span class="st hoje">Vence hoje</span>`;
+  if (st === 'prox') return `<span class="st prox">Faltam ${pr.resta} dia(s) útil(eis)</span>`;
+  if (st === 'ok') return `<span class="st ok">Faltam ${pr.resta} dias úteis</span>`;
+  if (st === 'concluida') return `<span class="st ok">Concluída</span>`;
+  if (st === 'cancelada') return `<span class="st venc">Cancelada</span>`;
+  return '';
+}
+
+function render() {
+  $('#resultados').style.display = pubs.length ? 'block' : 'none';
+  const q = $('#filtro').value.trim().toLowerCase();
+  const linhas = pubs.map((p) => { const pr = prazoDe(p); return { p, pr, st: situacao(p, pr) }; });
+  const cont = { todas: linhas.length, vencida: 0, hoje: 0, prox: 0, ok: 0, concluida: 0, cancelada: 0 };
+  linhas.forEach((l) => { if (cont[l.st] != null) cont[l.st]++; });
+  const rot = { todas: 'Todas', vencida: 'Vencidas', hoje: 'Vencem hoje', prox: 'Próximos 5 dias úteis', ok: 'No prazo', concluida: 'Concluídas', cancelada: 'Canceladas' };
+  $('#resumo').innerHTML = Object.keys(rot).map((k) => `<button data-f="${k}" class="${filtroSt === k ? 'on' : ''}">${rot[k]}<b>${cont[k]}</b></button>`).join('');
+
+  let vis = linhas.filter((l) => filtroSt === 'todas' || l.st === filtroSt);
+  if (q) vis = vis.filter(({ p }) => [p.processo, p.tribunal, p.orgao, p.classe, p.partes, p.texto, p.tipo, p.alvos].join(' ').toLowerCase().includes(q));
+  const peso = { vencida: 0, hoje: 1, prox: 2, ok: 3, sem: 4, concluida: 5, cancelada: 6 };
+  if ($('#ordem').value === 'fatal') vis.sort((a, b) => peso[a.st] - peso[b.st] || (a.pr.fatal || '9').localeCompare(b.pr.fatal || '9'));
+  else vis.sort((a, b) => b.p.disp.localeCompare(a.p.disp));
+
+  $('#lista').innerHTML = vis.length ? vis.map(({ p, pr, st }) => {
+    const a = ajustes[p.id] || {};
+    return `<article class="pub ${p.cancelada ? 'cancelada' : ''} ${a.concl ? 'concl' : ''}" data-id="${p.id}">
+      <div class="pub-h">
+        <div>
+          <div class="proc">${esc(p.processo)}</div>
+          <div><span class="tag">${esc(p.tribunal)}</span>${p.tipo ? `<span class="tag">${esc(p.tipo)}</span>` : ''}${p.cancelada ? `<span class="tag red">Cancelada${p.motivo ? ': ' + esc(p.motivo) : ''}</span>` : ''}</div>
+          <div class="meta">${esc(p.orgao)}${p.classe ? ' · ' + esc(p.classe) : ''}</div>
+          ${p.partes ? `<div class="meta">Partes: ${esc(p.partes)}</div>` : ''}
+          <div class="meta">Disponibilizada em ${br(p.disp)}${pr.publicacao ? ` · Publicação ${br(pr.publicacao)} · Início ${br(pr.inicio)}` : ''} · ${esc(p.alvos)}</div>
+        </div>
+        <div class="prazo">
+          <div class="meta">Prazo fatal</div>
+          <div class="fatal">${br(pr.fatal) || '—'}</div>
+          ${selo(st, pr)}
+        </div>
+      </div>
+      <div class="pub-c">
+        <span>Prazo: <input type="number" min="0" max="365" data-k="dias" value="${a.dias ?? 15}"></span>
+        <select data-k="cont"><option value="uteis" ${pr.cont === 'uteis' ? 'selected' : ''}>dias úteis</option><option value="corridos" ${pr.cont === 'corridos' ? 'selected' : ''}>dias corridos</option></select>
+        <label style="margin:0;display:flex;gap:4px;align-items:center;color:var(--ink)"><input type="checkbox" data-k="dobro" ${a.dobro ? 'checked' : ''}> em dobro</label>
+        <label style="margin:0;display:flex;gap:4px;align-items:center;color:var(--ink)"><input type="checkbox" data-k="concl" ${a.concl ? 'checked' : ''}> concluída</label>
+        <button class="mini sec" data-acao="texto">Ver texto</button>
+        ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">Documento</a>` : ''}
+        ${p.hash ? `<a href="${esc(certidao(p.hash))}" target="_blank" rel="noopener">Certidão</a>` : ''}
+      </div>
+      <div class="texto">${esc(p.texto)}</div>
+    </article>`;
+  }).join('') : '<div class="vazio">Nenhuma publicação nesse filtro.</div>';
+}
+$('#resumo').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; filtroSt = b.dataset.f; render(); });
+$('#filtro').addEventListener('input', render);
+$('#ordem').addEventListener('change', render);
+$('#lista').addEventListener('click', (e) => {
+  if (e.target.dataset.acao === 'texto') {
+    const art = e.target.closest('.pub'); art.classList.toggle('aberta');
+    e.target.textContent = art.classList.contains('aberta') ? 'Ocultar texto' : 'Ver texto';
+  }
+});
+$('#lista').addEventListener('change', (e) => {
+  const k = e.target.dataset.k; if (!k) return;
+  const id = e.target.closest('.pub').dataset.id;
+  const a = (ajustes[id] ||= {});
+  if (k === 'dias') a.dias = Math.max(0, parseInt(e.target.value, 10) || 0);
+  else if (k === 'cont') a.cont = e.target.value;
+  else a[k] = e.target.checked;
+  store.set('ajustes', ajustes); render();
+});
+
+$('#csv').addEventListener('click', () => {
+  const cab = ['Processo', 'Tribunal', 'Tipo', 'Órgão', 'Classe', 'Disponibilização', 'Publicação', 'Início', 'Prazo (dias)', 'Contagem', 'Prazo fatal', 'Situação', 'Partes', 'Monitorado por', 'Link'];
+  const lin = pubs.map((p) => {
+    const pr = prazoDe(p), st = situacao(p, pr);
+    return [p.processo, p.tribunal, p.tipo, p.orgao, p.classe, br(p.disp), br(pr.publicacao), br(pr.inicio), pr.dias, pr.cont, br(pr.fatal), st, p.partes, p.alvos, p.link];
+  });
+  const csv = [cab, ...lin].map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(';')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `publicacoes-djen-${hojeISO()}.csv`; a.click();
+});
+
+renderOabs();
+render();
+</script>
+</body>
+</html>
