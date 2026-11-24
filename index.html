@@ -3,72 +3,102 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Consulta de Publicações · DJEN</title>
+<title>Publicações e Prazos · DJEN</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <meta name="robots" content="noindex">
 <style>
   :root {
-    --bg: #f6f4ef; --card: #fff; --ink: #1d1f24; --muted: #6b6f78; --line: #e4e0d6;
-    --accent: #1f3a5f; --accent2: #2c5282; --red: #b42318; --redbg: #fdecea;
-    --amber: #a15c07; --amberbg: #fff4e0; --green: #1e6b3a; --greenbg: #e8f5ec;
+    --nogueira: #24180F; --nogueira-2: #3A281B; --latao: #B08A3E; --latao-claro: #D9BE7E;
+    --pergaminho: #F2E8D5; --pedra: #ECEAE6; --papel: #FFFFFF; --tinta: #231A13; --suave: #6E6358; --fio: #DDD7CF;
+    --alta: #8E2C2C; --media: #A86B12; --ok: #3F6B4A;
+    --serifa: 'Cinzel', 'Trajan Pro', Georgia, serif;
+    --sans: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --raio: 3px;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
-  header { background: var(--accent); color: #fff; padding: 18px 20px; }
-  header h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .3px; }
-  header p { margin: 2px 0 0; opacity: .8; font-size: 13px; }
-  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-  h2 { font-size: 15px; margin: 0 0 12px; color: var(--accent); text-transform: uppercase; letter-spacing: .5px; }
-  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
-  input, select, textarea { font: inherit; padding: 7px 9px; border: 1px solid #cfcabd; border-radius: 6px; background: #fff; color: var(--ink); }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: var(--pedra); color: var(--tinta); font: 400 15px/1.5 var(--sans); min-height: 100vh; display: flex; flex-direction: column; }
+  a { color: var(--nogueira-2); text-decoration-color: var(--latao); text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--latao); outline-offset: 2px; }
+  code { font-size: .9em; background: rgba(176,138,62,.14); padding: 1px 5px; border-radius: var(--raio); }
+
+  .hero {
+    background: radial-gradient(ellipse at 50% 30%, #35251A 0%, var(--nogueira) 55%, #170F09 100%);
+    color: var(--pergaminho); text-align: center; padding: 34px 20px 26px;
+    border-bottom: 4px double var(--latao);
+  }
+  .hero-logo { width: min(300px, 76vw); height: auto; display: block; margin: 0 auto 18px; filter: drop-shadow(0 6px 18px rgba(0,0,0,.45)); }
+  .hero h1 { margin: 0 0 6px; font-family: var(--serifa); font-weight: 500; font-size: 1.375rem; letter-spacing: .06em; color: var(--latao-claro); }
+  .hero p { margin: 0; color: #CDBFA6; font-size: .9375rem; }
+
+  main { flex: 1; width: 100%; max-width: 1160px; margin: 0 auto; padding: 28px 24px 40px; }
+  .card { background: var(--papel); border: 1px solid var(--fio); border-radius: var(--raio); padding: 18px 20px; margin-bottom: 18px; }
+  h2 { font-family: var(--serifa); font-size: 1.0625rem; font-weight: 600; letter-spacing: .04em; margin: 0 0 14px; color: var(--nogueira); padding-bottom: 8px; border-bottom: 1px solid var(--fio); }
+  label { font-size: .8125rem; font-weight: 600; color: var(--suave); display: block; margin-bottom: 4px; }
+  input, select, textarea { font: inherit; color: var(--tinta); background: var(--papel); border: 1px solid #CFC7BC; border-radius: var(--raio); padding: 8px 10px; max-width: 100%; }
+  input:focus, select:focus, textarea:focus { border-color: var(--latao); outline: 2px solid rgba(176,138,62,.35); outline-offset: 0; }
+  input[type=checkbox] { accent-color: var(--nogueira); width: 16px; height: 16px; }
   textarea { width: 100%; resize: vertical; }
-  button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
-  button.sec { background: #fff; color: var(--accent); }
-  button.mini { padding: 3px 8px; font-size: 13px; }
-  button:disabled { opacity: .5; cursor: default; }
+  button { font: inherit; font-weight: 600; font-size: .9375rem; line-height: 1.2; padding: 9px 16px; border-radius: var(--raio); border: 1px solid var(--nogueira); background: var(--nogueira); color: #F3E3B8; cursor: pointer; }
+  button:hover { background: var(--nogueira-2); }
+  button.sec { background: var(--papel); color: var(--tinta); border-color: #BDB3A6; }
+  button.sec:hover { border-color: var(--nogueira); background: var(--papel); }
+  button.mini { padding: 4px 10px; font-size: .8125rem; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  #buscar { background: var(--latao); border-color: var(--latao); color: var(--nogueira); }
+  #buscar:hover { background: var(--latao-claro); }
   .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-  .chip { background: #eef2f7; border: 1px solid #d5dde8; border-radius: 99px; padding: 3px 6px 3px 10px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
-  .chip button { border: 0; background: none; color: var(--muted); padding: 0 4px; font-size: 15px; }
-  #status { font-size: 14px; color: var(--muted); margin-top: 10px; min-height: 20px; }
-  #avisos { font-size: 13px; color: var(--amber); }
-  .bar { height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; margin-top: 8px; display: none; }
-  .bar i { display: block; height: 100%; width: 0; background: var(--accent2); transition: width .2s; }
-  .resumo { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .resumo button { background: #fff; color: var(--ink); border: 1px solid var(--line); }
-  .resumo button.on { border-color: var(--accent); background: #eef2f7; }
-  .resumo b { margin-left: 4px; }
-  .pub { border: 1px solid var(--line); border-radius: 10px; background: #fff; margin-bottom: 10px; overflow: hidden; }
-  .pub.cancelada { opacity: .65; }
-  .pub-h { padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-  .proc { font-weight: 600; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; }
-  .meta { font-size: 13px; color: var(--muted); }
-  .tag { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 99px; background: #eef2f7; color: var(--accent); margin-right: 4px; }
-  .tag.red { background: var(--redbg); color: var(--red); }
-  .prazo { text-align: right; min-width: 170px; }
-  .fatal { font-weight: 700; font-size: 15px; }
-  .st { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
-  .st.venc { background: var(--redbg); color: var(--red); }
-  .st.hoje { background: var(--red); color: #fff; }
-  .st.prox { background: var(--amberbg); color: var(--amber); }
-  .st.ok { background: var(--greenbg); color: var(--green); }
-  .pub-c { border-top: 1px solid var(--line); padding: 10px 14px; background: #fcfbf8; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; }
-  .pub-c input[type=number] { width: 64px; padding: 4px 6px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } main { padding: 20px 14px 32px; } }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .chip { background: var(--pergaminho); border: 1px solid #E2C48A; border-radius: var(--raio); padding: 3px 4px 3px 10px; font-size: .8125rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+  .chip button { border: 0; background: none; color: var(--suave); padding: 0 6px; font-size: 1rem; }
+  .chip button:hover { color: var(--alta); background: none; }
+  #status { font-size: .875rem; color: var(--suave); margin-top: 10px; min-height: 20px; }
+  #avisos { font-size: .8125rem; color: var(--media); }
+  .bar { height: 4px; background: var(--fio); border-radius: 4px; overflow: hidden; margin-top: 10px; display: none; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--latao); transition: width .2s; }
+  details.card summary { cursor: pointer; font-family: var(--serifa); font-weight: 600; letter-spacing: .04em; color: var(--nogueira); }
+  .resumo { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .resumo button { background: var(--papel); color: var(--tinta); border: 1px solid var(--fio); font-weight: 500; padding: 7px 12px; }
+  .resumo button:hover { border-color: var(--latao); background: var(--papel); }
+  .resumo button.on { background: var(--nogueira); border-color: var(--nogueira); color: var(--pergaminho); }
+  .resumo button.on b { color: var(--latao-claro); }
+  .resumo b { margin-left: 4px; font-variant-numeric: tabular-nums; }
+  .pub { border: 1px solid var(--fio); border-left: 4px solid var(--latao); border-radius: var(--raio); background: var(--papel); margin-bottom: 12px; overflow: hidden; }
+  .pub.cancelada { opacity: .65; border-left-color: var(--alta); }
+  .pub-h { padding: 14px 16px; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+  .proc { font-weight: 700; font-size: .9375rem; font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+  .meta { font-size: .8125rem; color: var(--suave); }
+  .tag { display: inline-block; font-size: .75rem; font-weight: 600; padding: 1px 8px; border-radius: var(--raio); background: var(--pergaminho); color: var(--nogueira-2); margin: 3px 4px 3px 0; }
+  .tag.red { background: #F8EAEA; color: var(--alta); }
+  .prazo { text-align: right; min-width: 180px; }
+  .fatal { font-family: var(--serifa); font-weight: 600; font-size: 1.375rem; color: var(--nogueira); letter-spacing: .02em; }
+  .st { display: inline-block; font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: var(--raio); }
+  .st.venc { background: #F8EAEA; color: var(--alta); }
+  .st.hoje { background: var(--alta); color: #fff; }
+  .st.prox { background: #FBF3E4; color: var(--media); }
+  .st.ok { background: #EAF1EB; color: var(--ok); }
+  .pub-c { border-top: 1px solid var(--fio); padding: 10px 16px; background: #FAF7F1; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: .8125rem; }
+  .pub-c label { display: flex; margin: 0; gap: 5px; align-items: center; color: var(--tinta); font-weight: 500; }
+  .pub-c input[type=number] { width: 66px; padding: 4px 6px; }
   .pub-c select { padding: 4px 6px; }
-  .texto { white-space: pre-wrap; font-size: 14px; padding: 12px 14px; border-top: 1px solid var(--line); max-height: 420px; overflow: auto; display: none; }
+  .texto { white-space: pre-wrap; font-size: .875rem; padding: 14px 16px; border-top: 1px solid var(--fio); max-height: 420px; overflow: auto; display: none; }
   .pub.aberta .texto { display: block; }
-  a { color: var(--accent2); }
-  .vazio { text-align: center; color: var(--muted); padding: 30px; }
-  footer { text-align: center; font-size: 12px; color: var(--muted); padding: 20px; }
-  .concl .pub-h { text-decoration: line-through; text-decoration-color: #aaa; }
+  .vazio { text-align: center; color: var(--suave); padding: 30px; }
+  .concl .pub-h { text-decoration: line-through; text-decoration-color: #B5ABA0; }
+  footer { text-align: center; color: var(--suave); font-size: .8125rem; padding: 18px 24px 28px; border-top: 1px solid var(--fio); }
+  @media (max-width: 600px) { .pub-h { grid-template-columns: 1fr; } .prazo { text-align: left; } }
 </style>
 </head>
 <body>
-<header>
-  <h1>Consulta de Publicações · DJEN</h1>
-  <p>Busca no Diário de Justiça Eletrônico Nacional com cálculo do prazo fatal</p>
+<header class="hero">
+  <img class="hero-logo" src="logo.png" alt="Logo do escritório" width="712" height="364">
+  <h1>Publicações e prazos</h1>
+  <p>Consulta ao Diário de Justiça Eletrônico Nacional com cálculo do prazo fatal</p>
 </header>
 <main>
   <div class="grid2">
@@ -90,7 +120,7 @@
         <div><label for="fim">até</label><input type="date" id="fim"></div>
       </div>
       <div class="row" style="margin-top:10px">
-        <label style="display:flex;gap:6px;align-items:center;margin:0;color:var(--ink)"><input type="checkbox" id="variantes" checked> Testar variantes da OAB (-A, -O, -N, -B, -S, -E)</label>
+        <label style="display:flex;gap:6px;align-items:center;margin:0;color:var(--tinta)"><input type="checkbox" id="variantes" checked> Testar variantes da OAB (-A, -O, -N, -B, -S, -E)</label>
       </div>
       <div class="row" style="margin-top:12px">
         <button id="buscar">Buscar publicações</button>
@@ -415,8 +445,8 @@ function render() {
       <div class="pub-c">
         <span>Prazo: <input type="number" min="0" max="365" data-k="dias" value="${a.dias ?? 15}"></span>
         <select data-k="cont"><option value="uteis" ${pr.cont === 'uteis' ? 'selected' : ''}>dias úteis</option><option value="corridos" ${pr.cont === 'corridos' ? 'selected' : ''}>dias corridos</option></select>
-        <label style="margin:0;display:flex;gap:4px;align-items:center;color:var(--ink)"><input type="checkbox" data-k="dobro" ${a.dobro ? 'checked' : ''}> em dobro</label>
-        <label style="margin:0;display:flex;gap:4px;align-items:center;color:var(--ink)"><input type="checkbox" data-k="concl" ${a.concl ? 'checked' : ''}> concluída</label>
+        <label style="margin:0;display:flex;gap:4px;align-items:center;color:var(--tinta)"><input type="checkbox" data-k="dobro" ${a.dobro ? 'checked' : ''}> em dobro</label>
+        <label style="margin:0;display:flex;gap:4px;align-items:center;color:var(--tinta)"><input type="checkbox" data-k="concl" ${a.concl ? 'checked' : ''}> concluída</label>
         <button class="mini sec" data-acao="texto">Ver texto</button>
         ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">Documento</a>` : ''}
         ${p.hash ? `<a href="${esc(certidao(p.hash))}" target="_blank" rel="noopener">Certidão</a>` : ''}
